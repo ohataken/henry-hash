@@ -6,4 +6,3 @@ henry-hash.o: main.o
 
 run: henry-hash.o
 	./$<
-	

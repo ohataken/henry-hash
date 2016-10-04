@@ -32,7 +32,7 @@ struct hashmap *new_hashmap(int size) {
 }
 
 int generate_hashvalue(char *key) {
-    int tmp;
+    int tmp = 0;
 
     for (unsigned int i = 0; i < strlen(key); ++i) {
         tmp = (tmp << i) + (char)key[i];
