@@ -57,7 +57,6 @@ void append_record(struct record *body, struct record *tail) {
 }
 
 void hashmap_just_insert(struct hashmap *hashmap, struct record *record) {
-    int hashvalue = generate_hashvalue(record->key) / hashmap->size;
     struct record *r = hashmap->array[hashvalue];
     ++hashmap->count;
 
