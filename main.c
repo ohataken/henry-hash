@@ -38,8 +38,9 @@ struct hashmap *new_hashmap(int size) {
 
 int generate_hashvalue(char *key) {
     int tmp = 0;
+    int len = strlen(key);
 
-    for (unsigned int i = 0; i < strlen(key); ++i) {
+    for (unsigned int i = 0; i < len; ++i) {
         tmp = (tmp << i) + (char)key[i];
     }
 
@@ -49,7 +50,7 @@ int generate_hashvalue(char *key) {
 struct record *get_tail_record(struct record *record) {
     struct record *r = record;
 
-    while (r->next != NULL) {
+    while (r) {
         r = r->next;
     }
 
@@ -62,6 +63,7 @@ void append_record(struct record *body, struct record *tail) {
 }
 
 void hashmap_just_insert(struct hashmap *hashmap, struct record *record) {
+    int hashvalue = generate_hashvalue(record->key) % hashmap->size;
     struct record *r = hashmap->array[hashvalue];
     ++hashmap->count;
 
@@ -73,21 +75,42 @@ void hashmap_just_insert(struct hashmap *hashmap, struct record *record) {
 }
 
 void hashmap_rehash(struct hashmap *hashmap) {
-    struct hashmap *h = new_hashmap(hashmap->size << 1);
-    h->count = hashmap->count;
+    int size = hashmap->size * 2;
+    struct record **array = malloc(sizeof(struct record *) * size);
+
+    for (int i = 0; i < size; ++i) {
+        array[i] = NULL;
+    }
+
+    int hashvalue;
 
     for (int i = 0; i < hashmap->size; ++i) {
-        for (struct record *r = hashmap->array[i]; r != NULL; r = r->next) {
-            hashmap_just_insert(h, r);
+        for (struct record *r = hashmap->array[i]; r; r = r->next) {
+            hashvalue = generate_hashvalue(r->key);
+            array[hashvalue % size] = r;
         }
     }
+
+    hashmap->size = size;
+    hashmap->array = array;
 }
 
 void hashmap_insert(struct hashmap *hashmap, struct record *record) {
-    if (hashmap->count * 2 >= hashmap->size)
+    if (hashmap->count * 2 >= hashmap->size) {
         hashmap_rehash(hashmap);
+    }
 
     hashmap_just_insert(hashmap, record);
+}
+
+void print_hashmap(struct hashmap *hashmap) {
+    printf("<%%hashmap count: %d, size: %d\n", hashmap->count, hashmap->size);
+    for (int i = 0; i < hashmap->size; ++i) {
+        for (struct record *r = hashmap->array[i]; r; r = r->next) {
+            printf("  <%%record key: %s, value: %s\n", r->key, r->value);
+        }
+    }
+    printf(">\n");
 }
 
 int main(void) {
@@ -98,10 +121,8 @@ int main(void) {
     hashmap_insert(hashmap, new_record("x02", NULL, NULL));
     hashmap_insert(hashmap, new_record("x03", NULL, NULL));
     hashmap_insert(hashmap, new_record("x04", NULL, NULL));
-    hashmap_insert(hashmap, new_record("x05", NULL, NULL));
-    hashmap_insert(hashmap, new_record("x06", NULL, NULL));
 
-    printf("size: %d, count: %d\n", hashmap->size, hashmap->count);
+    print_hashmap(hashmap);
 
     return 0;
 }
