@@ -12,7 +12,7 @@ struct record{
 struct hashmap{
     int size;
     int count;
-    struct record* array[];
+    struct record** array;
 };
 
 struct record *new_record(char *key, void *value, struct record *next) {
