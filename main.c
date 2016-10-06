@@ -28,6 +28,11 @@ struct hashmap *new_hashmap(int size) {
     h->size = size;
     h->count = 0;
     h->array = malloc(sizeof(struct record *) * size);
+
+    for (int i = 0; i < h->size; ++i) {
+        h->array[i] = NULL;
+    }
+
     return h;
 }
 
